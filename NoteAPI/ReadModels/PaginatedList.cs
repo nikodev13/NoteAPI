@@ -16,21 +16,11 @@ public class PaginatedList<T>
     public int TotalPages { get; }
     public int TotalCount { get; }
     
-    public PaginatedList(List<T> items, int totalCount , int pageNumber, int pageSize)
+    public PaginatedList(List<T> items, int totalCount , PaginatedListRequest request)
     {
         Items = items;
         TotalCount = totalCount;
-        PageNumber = pageNumber;
-        TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
-    }
-
-    public static async ValueTask<PaginatedList<T>> CreateFromQueryable(IQueryable<T> queryable, PaginatedListRequest request)
-    {
-        var totalCount = await queryable.CountAsync();
-        var result = await queryable
-            .Skip((request.PageNumber-1)*request.PageSize)
-            .ToListAsync();
-
-        return new PaginatedList<T>(result, totalCount, request.PageNumber, request.PageSize);
+        PageNumber = request.PageNumber;
+        TotalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
     }
 }

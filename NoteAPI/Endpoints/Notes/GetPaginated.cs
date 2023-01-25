@@ -56,7 +56,16 @@ public class GetPaginatedNotesRequestHandler : IRequestHandler<GetPaginatedNotes
                 : query.OrderBy(selector);
         }
 
-        var paginatedList = await PaginatedList<Note>.CreateFromQueryable(query, request);
+        var totalCount = await query.CountAsync(cancellationToken);
+        
+        var notesReadModels = await query
+            .Skip((request.PageNumber-1)*request.PageSize)
+            .Take(request.PageSize)
+            .Select(x => NoteReadModel.From(x))
+            .ToListAsync(cancellationToken);
+
+        var paginatedList = new PaginatedList<NoteReadModel>(notesReadModels, totalCount, request);
+        
         return Results.Ok(paginatedList);
     }
 }
