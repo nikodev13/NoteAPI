@@ -13,6 +13,7 @@ public static class EndpointsBuilder
             .Cast<IEndpoint>()
             .ToList()
             .ForEach(x => x!.Configure(endpoints));
+        
 
         return endpoints;
     }
@@ -24,8 +25,7 @@ public static class EndpointsBuilder
         assembly.GetTypes()
             .Where(x => x.IsClass)
             .Where(x => x.GetInterfaces().Any(@interface => @interface.IsGenericType 
-                && (@interface.GetGenericTypeDefinition() == typeof(IQueryHandler<>)
-                    || @interface.GetGenericTypeDefinition() == typeof(ICommandHandler<>))))
+                && (@interface.GetGenericTypeDefinition() == typeof(IRequestHandler<>))))
             .ToList()
             .ForEach(x => services.AddScoped(x));
        

@@ -1,4 +1,5 @@
-﻿using NoteAPI.Shared.Endpoints;
+﻿using Microsoft.AspNetCore.Mvc;
+using NoteAPI.Shared.Endpoints;
 
 namespace NoteAPI.Endpoints.Notes;
 
@@ -6,21 +7,24 @@ public class GetAllNotesEndpoint : IEndpoint
 {
     public void Configure(IEndpointRouteBuilder endpoint)
     {
-        endpoint.MapGet<GetAllNotesQuery, GetAllNotesQueryHandler>("/notes");
+        endpoint.MapGet<GetAllNotesRequest, GetAllNotesRequestHandler>("/notes/{id}");
     }
 }
 
-public class GetAllNotesQuery : IQuery {}
-public class GetAllNotesQueryHandler : IQueryHandler<GetAllNotesQuery>
+public class GetAllNotesRequest : IRequest
 {
-    public GetAllNotesQueryHandler()
+    public required int Id { get; init; }
+}
+public class GetAllNotesRequestHandler : IRequestHandler<GetAllNotesRequest>
+{
+    public GetAllNotesRequestHandler()
     {
         
     }
     
-    public ValueTask<IResult> HandleAsync(GetAllNotesQuery query, CancellationToken cancellationToken)
+    public ValueTask<IResult> HandleAsync(GetAllNotesRequest request, CancellationToken cancellationToken)
     {
-        return ValueTask.FromResult(Results.Ok(1));
+        return ValueTask.FromResult(Results.Ok(new { request.Id }));
     }
 }
 
