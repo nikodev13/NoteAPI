@@ -16,5 +16,7 @@ public class NoteEntityTypeConfiguration : IEntityTypeConfiguration<Note>
         builder.Property(x => x.OwnerId)
             .HasConversion(x => x.Value, x => new UserId(x));
         builder.HasOne<User>().WithMany().HasForeignKey(x => x.OwnerId);
+
+        builder.HasIndex(x => new { x.Id, x.Title }).IsUnique();
     }
 }
