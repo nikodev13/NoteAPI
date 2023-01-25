@@ -6,7 +6,7 @@ public class Note
 {
     public required NoteId Id { get; init; }
     public required string Title { get; set; }
-    public string? Description { get; set; }
+    public string? Content { get; set; }
 
     public required UserId OwnerId { get; init; }
 
