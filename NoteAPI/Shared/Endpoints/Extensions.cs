@@ -5,8 +5,8 @@ namespace NoteAPI.Shared.Endpoints;
 public static class Extensions
 {
     public static RouteHandlerBuilder MapGet<TQuery, TQueryHandler>(this IEndpointRouteBuilder endpointBuilder, string template)
-        where TQuery : IQuery
-        where TQueryHandler : IQueryHandler<TQuery>
+        where TQuery : IRequest
+        where TQueryHandler : IRequestHandler<TQuery>
     {
         return endpointBuilder.MapGet(template,
             async ([FromServices] TQueryHandler endpointHandler,
@@ -16,39 +16,42 @@ public static class Extensions
         );
     }
     
-    public static RouteHandlerBuilder MapPost<TCommand, TCommandHandler>(this IEndpointRouteBuilder endpointBuilder, string template)
-        where TCommand : ICommand
-        where TCommandHandler : ICommandHandler<TCommand>
+    public static RouteHandlerBuilder MapPost<TRequest, TRequestHandler>(this IEndpointRouteBuilder endpointBuilder, string template)
+        where TRequest : IRequest
+        where TRequestHandler : IRequestHandler<TRequest>
     {
-        return endpointBuilder.MapGet(template,
-            async ([FromServices] TCommandHandler endpointHandler,
-                    [AsParameters] TCommand request,
+        return endpointBuilder.MapPost(template,
+            async ([FromServices] TRequestHandler endpointHandler,
+                    [AsParameters] TRequest request,
                     CancellationToken cancellationToken)
                 => await endpointHandler.HandleAsync(request, cancellationToken)
         );
     }
+ 
+    public static RouteHandlerBuilder MapPut<TRequest, TRequestHandler>(this IEndpointRouteBuilder endpointBuilder, string template)
+        where TRequest : IRequest
+        where TRequestHandler : IRequestHandler<TRequest>
+    {
+        return endpointBuilder.MapPut(template,
+            async ([FromServices] TRequestHandler endpointHandler,
+                    [AsParameters] TRequest request,
+                    CancellationToken cancellationToken)
+                => await endpointHandler.HandleAsync(request, cancellationToken)
+        );
+    }
+
     
-    public static RouteHandlerBuilder MapPut<TCommand, TCommandHandler>(this IEndpointRouteBuilder endpointBuilder, string template)
-        where TCommand : ICommand
-        where TCommandHandler : ICommandHandler<TCommand>
+    public static RouteHandlerBuilder MapDelete<TRequest, TRequestHandler>(this IEndpointRouteBuilder endpointBuilder, string template)
+        where TRequest : IRequest
+        where TRequestHandler : IRequestHandler<TRequest>
     {
-        return endpointBuilder.MapGet(template,
-            async ([FromServices] TCommandHandler endpointHandler,
-                    [AsParameters] TCommand request,
+        return endpointBuilder.MapDelete(template,
+            async ([FromServices] TRequestHandler endpointHandler,
+                    [AsParameters] TRequest request,
                     CancellationToken cancellationToken)
                 => await endpointHandler.HandleAsync(request, cancellationToken)
         );
     }
-    
-    public static RouteHandlerBuilder MapDelete<TCommand, TCommandHandler>(this IEndpointRouteBuilder endpointBuilder, string template)
-        where TCommand : ICommand
-        where TCommandHandler : ICommandHandler<TCommand>
-    {
-        return endpointBuilder.MapGet(template,
-            async ([FromServices] TCommandHandler endpointHandler,
-                    [AsParameters] TCommand request,
-                    CancellationToken cancellationToken)
-                => await endpointHandler.HandleAsync(request, cancellationToken)
-        );
-    }
+
+ 
 }

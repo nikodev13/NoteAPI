@@ -1,17 +1,9 @@
 ﻿namespace NoteAPI.Shared.Endpoints;
 
-public interface IQuery { }
+public interface IRequest { }
 
-public interface IQueryHandler<in TQuery> 
-    where TQuery : IQuery
+public interface IRequestHandler<in TRequest> 
+    where TRequest : IRequest
 {
-    ValueTask<IResult> HandleAsync(TQuery request, CancellationToken cancellationToken);
-}
-
-public interface ICommand { }
-
-public interface ICommandHandler<in TCommand> 
-    where TCommand : ICommand
-{
-    ValueTask<IResult> HandleAsync(TCommand request, CancellationToken cancellationToken);
+    ValueTask<IResult> HandleAsync(TRequest request, CancellationToken cancellationToken);
 }
