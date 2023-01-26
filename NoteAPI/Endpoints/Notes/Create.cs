@@ -22,7 +22,10 @@ public class CreateNoteEndpoint : IEndpoint
 {
     public void Configure(IEndpointRouteBuilder endpoint)
     {
-        endpoint.MapPost<CreateNoteRequest, CreateNoteRequestHandler>("/notes");
+        endpoint.MapPost<CreateNoteRequest, CreateNoteRequestHandler>("/notes")
+            .Produces(StatusCodes.Status201Created)
+            .Produces(StatusCodes.Status409Conflict)
+            .RequireAuthorization();
     }
 }
 
@@ -39,7 +42,7 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequest>
     {
         if (await _dbContext.Notes.AnyAsync(x => x.Title == request.Body.Title, cancellationToken))
         {
-            return Results.BadRequest($"Note with title `{request.Body.Title}` already exists.");
+            return Results.Conflict($"Note with title `{request.Body.Title}` already exists.");
         }
 
         var note = new Note()

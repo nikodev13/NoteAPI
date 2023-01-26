@@ -6,18 +6,21 @@ using NoteAPI.Shared.Endpoints;
 
 namespace NoteAPI.Endpoints.Notes;
 
-public class GetNoteByIdEndpoint : IEndpoint
-{
-    public void Configure(IEndpointRouteBuilder endpoint)
-    {
-        endpoint.MapGet<GetNoteByIdRequest, GetNoteByIdRequestHandler>("/notes/{id:guid}");
-    }
-}
-
 public class GetNoteByIdRequest : IRequest
 {
     [FromRoute]
     public required Guid Id { get; init; }
+}
+
+public class GetNoteByIdEndpoint : IEndpoint
+{
+    public void Configure(IEndpointRouteBuilder endpoint)
+    {
+        endpoint.MapGet<GetNoteByIdRequest, GetNoteByIdRequestHandler>("/notes/{id:guid}")
+            .Produces<NoteReadModel>()
+            .Produces(StatusCodes.Status404NotFound)
+            .RequireAuthorization();
+    }
 }
 
 public class GetNoteByIdRequestHandler : IRequestHandler<GetNoteByIdRequest>

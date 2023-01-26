@@ -24,7 +24,9 @@ public class LoginUserEndpoint : IEndpoint
 {
     public void Configure(IEndpointRouteBuilder endpoint)
     {
-        endpoint.MapPost<LoginUserRequest, LoginUserRequestHandler>("/account/login");
+        endpoint.MapPost<LoginUserRequest, LoginUserRequestHandler>("/account/login")
+            .Produces<AccessTokenReadModel>()
+            .Produces(StatusCodes.Status400BadRequest);
     }
 }
 

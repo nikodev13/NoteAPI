@@ -23,7 +23,11 @@ public class UpdateNoteEndpoint : IEndpoint
 {
     public void Configure(IEndpointRouteBuilder endpoint)
     {
-        endpoint.MapPut<UpdateNoteRequest, UpdateNoteRequestHandler>("/notes/{id:guid}");
+        endpoint.MapPut<UpdateNoteRequest, UpdateNoteRequestHandler>("/notes/{id:guid}")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status409Conflict)
+            .RequireAuthorization();
     }
 }
 
@@ -40,7 +44,7 @@ public class UpdateNoteRequestHandler : IRequestHandler<UpdateNoteRequest>
     {
         if (await _dbContext.Notes.AnyAsync(x => x.Title == request.Body.Title, cancellationToken))
         {
-            return Results.BadRequest($"Note with title `{request.Body.Title}` already exists.");
+            return Results.Conflict($"Note with title `{request.Body.Title}` already exists.");
         }
 
         var note = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
@@ -56,6 +60,6 @@ public class UpdateNoteRequestHandler : IRequestHandler<UpdateNoteRequest>
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return Results.Accepted();
+        return Results.NoContent();
     }
 }

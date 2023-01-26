@@ -23,7 +23,9 @@ public class RegisterUserEndpoint : IEndpoint
 {
     public void Configure(IEndpointRouteBuilder endpoint)
     {
-        endpoint.MapPost<RegisterUserRequest, RegisterUserRequestHandler>("/account/register");
+        endpoint.MapPost<RegisterUserRequest, RegisterUserRequestHandler>("/account/register")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status409Conflict);
     }
 }
 
@@ -57,6 +59,5 @@ public class RegisterUserRequestHandler : IRequestHandler<RegisterUserRequest>
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Results.NoContent();
-
     }
 }

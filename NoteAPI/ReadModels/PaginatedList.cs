@@ -1,13 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NoteAPI.Shared.Endpoints;
+﻿using NoteAPI.Endpoints;
 
 namespace NoteAPI.ReadModels;
-
-public class PaginatedListRequest : IRequest
-{
-    public int PageNumber { get; init; } = 1;
-    public int PageSize { get; init; } = 10;
-}
 
 public class PaginatedList<T>
 {
@@ -16,7 +9,7 @@ public class PaginatedList<T>
     public int TotalPages { get; }
     public int TotalCount { get; }
     
-    public PaginatedList(List<T> items, int totalCount , PaginatedListRequest request)
+    public PaginatedList(List<T> items, int totalCount, PaginatedListRequest request)
     {
         Items = items;
         TotalCount = totalCount;
