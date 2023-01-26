@@ -33,7 +33,7 @@ public class GetPaginatedNotesRequestHandler : IRequestHandler<GetPaginatedNotes
     
     public async ValueTask<IResult> HandleAsync(GetPaginatedNotesRequest request, CancellationToken cancellationToken)
     {
-        var query = _dbContext.Notes.AsQueryable();
+        var query = _dbContext.Notes.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchPhrase))
         {
