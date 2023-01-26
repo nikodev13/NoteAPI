@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using NoteAPI.Authentication;
+using NoteAPI.Authorization;
 using NoteAPI.Persistence;
 using NoteAPI.Shared.Endpoints;
 
@@ -8,6 +10,9 @@ builder.Services
     .AddDbContext<NoteDbContext>(
         options => options.UseSqlServer(builder.Configuration.GetConnectionString("NoteDbConnectionString")))
         
+    .ConfigureAuthentication(builder.Configuration)
+    .ConfigureAuthorization()
+    
     .RegisterEndpointsHandlers()
         
     .AddEndpointsApiExplorer()
@@ -19,6 +24,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger().UseSwaggerUI();
 }
+
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.RegisterEndpoints();
 
