@@ -13,7 +13,7 @@ public class UserContextService : IUserContextService
 {
     public UserId? UserId { get; }
 
-    public UserContextService(HttpContextAccessor contextAccessor)
+    public UserContextService(IHttpContextAccessor contextAccessor)
     {
         var claim = contextAccessor.HttpContext?.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
         UserId = Guid.TryParse(claim, out var parsedGuid)
