@@ -21,6 +21,8 @@ public class ChangeUserEmailEndpoint : IEndpoint
     public void Configure(IEndpointRouteBuilder endpoint)
     {
         endpoint.MapPost<ChangeUserEmailRequest, ChangeUserEmailRequestHandler>("/account/change-email")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status409Conflict)
             .RequireAuthorization();
     }
 }

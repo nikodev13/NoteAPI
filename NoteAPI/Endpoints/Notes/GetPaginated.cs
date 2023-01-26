@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NoteAPI.Entities;
 using NoteAPI.Persistence;
@@ -7,19 +8,24 @@ using NoteAPI.Shared.Endpoints;
 
 namespace NoteAPI.Endpoints.Notes;
 
+public class GetPaginatedNotesRequest : PaginatedListRequest
+{
+    [FromQuery]
+    public string? SearchPhrase { get; init; }
+    [FromQuery]
+    public string? OrderBy { get; init; }
+    [FromQuery]
+    public bool? OrderDescending { get; init; } = false;
+}
+
 public class GetPaginatedNotesEndpoint : IEndpoint
 {
     public void Configure(IEndpointRouteBuilder endpoint)
     {
-        endpoint.MapGet<GetPaginatedNotesRequest, GetPaginatedNotesRequestHandler>("/notes");
+        endpoint.MapGet<GetPaginatedNotesRequest, GetPaginatedNotesRequestHandler>("/notes")
+            .Produces<PaginatedList<NoteReadModel>>()
+            .RequireAuthorization();
     }
-}
-
-public class GetPaginatedNotesRequest : PaginatedListRequest
-{
-    public string? SearchPhrase { get; init; }
-    public string? OrderBy { get; init; }
-    public bool? OrderDescending { get; init; } = false;
 }
 
 public class GetPaginatedNotesRequestHandler : IRequestHandler<GetPaginatedNotesRequest>
