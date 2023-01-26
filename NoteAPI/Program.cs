@@ -7,8 +7,7 @@ using NoteAPI.Shared.Endpoints;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddDbContext<NoteDbContext>(
-        options => options.UseSqlServer(builder.Configuration.GetConnectionString("NoteDbConnectionString")))
+    .ConfigurePersistence(builder.Configuration)
         
     .ConfigureAuthentication(builder.Configuration)
     .ConfigureAuthorization()
