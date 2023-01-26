@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using NoteAPI.Authentication;
 using NoteAPI.Authorization;
+using NoteAPI.Middlewares;
 using NoteAPI.Persistence;
 using NoteAPI.Shared.Endpoints;
 
@@ -13,7 +13,9 @@ builder.Services
     .ConfigureAuthorization()
     
     .RegisterEndpointsHandlers()
-        
+    
+    .AddScoped<ExceptionHandlingMiddleware>()
+    
     .AddEndpointsApiExplorer()
     .AddSwaggerGen();
 
@@ -23,6 +25,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger().UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
