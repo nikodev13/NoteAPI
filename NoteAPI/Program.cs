@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using NoteAPI.Authentication;
 using NoteAPI.Authorization;
 using NoteAPI.Middlewares;
@@ -27,9 +26,9 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger().UseSwaggerUI();
 }
-
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
@@ -41,3 +40,5 @@ app.UseAuthorization();
 app.RegisterEndpoints();
 
 app.Run();
+
+public partial class Program { }
