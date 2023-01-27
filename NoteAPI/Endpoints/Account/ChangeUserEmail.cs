@@ -46,7 +46,7 @@ public class ChangeUserEmailRequestHandler : IRequestHandler<ChangeUserEmailRequ
         }
 
         var user = await _noteDbContext.Users
-            .SingleAsync(x => x.UserId.Value == _userContextService.UserId!.Value, cancellationToken);
+            .SingleAsync(x => x.UserId == _userContextService.UserId, cancellationToken);
 
         user.Email = request.Body.Email.ToLower();
         await _noteDbContext.SaveChangesAsync(cancellationToken);
