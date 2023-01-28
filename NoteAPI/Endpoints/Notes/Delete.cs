@@ -16,7 +16,7 @@ public class DeleteNoteEndpoint : IEndpoint
 {
     public void Configure(IEndpointRouteBuilder endpoint)
     {
-        endpoint.MapDelete<DeleteNoteRequest, DeleteNoteRequestHandler>("/notes/{id:guid}")
+        endpoint.MapDelete<DeleteNoteRequest, DeleteNoteRequestHandler>("/api/notes/{id:guid}")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .RequireAuthorization();

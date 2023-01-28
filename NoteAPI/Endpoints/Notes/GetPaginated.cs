@@ -23,7 +23,7 @@ public class GetPaginatedNotesEndpoint : IEndpoint
 {
     public void Configure(IEndpointRouteBuilder endpoint)
     {
-        endpoint.MapGet<GetPaginatedNotesRequest, GetPaginatedNotesRequestHandler>("/notes")
+        endpoint.MapGet<GetPaginatedNotesRequest, GetPaginatedNotesRequestHandler>("/api/notes")
             .Produces<PaginatedList<NoteReadModel>>()
             .RequireAuthorization();
     }

@@ -1,3 +1,4 @@
+using FluentValidation;
 using NoteAPI.Authentication;
 using NoteAPI.Authorization;
 using NoteAPI.Middlewares;
@@ -18,6 +19,8 @@ builder.Services
     .RegisterEndpointsHandlers()
     
     .AddScoped<ExceptionHandlingMiddleware>()
+    
+    .AddValidatorsFromAssembly(typeof(Program).Assembly)
     
     .AddEndpointsApiExplorer()
     .AddSwaggerGen();

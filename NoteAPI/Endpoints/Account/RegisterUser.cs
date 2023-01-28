@@ -4,6 +4,7 @@ using NoteAPI.Authentication;
 using NoteAPI.Entities;
 using NoteAPI.Persistence;
 using NoteAPI.Shared.Endpoints;
+using NoteAPI.Shared.Validation;
 
 namespace NoteAPI.Endpoints.Account;
 
@@ -23,7 +24,7 @@ public class RegisterUserEndpoint : IEndpoint
 {
     public void Configure(IEndpointRouteBuilder endpoint)
     {
-        endpoint.MapPost<RegisterUserRequest, RegisterUserRequestHandler>("/account/register")
+        endpoint.MapPost<RegisterUserRequest, RegisterUserRequestHandler>("/api/account/register")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status409Conflict);
     }
