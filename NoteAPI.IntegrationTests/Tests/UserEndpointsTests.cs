@@ -21,7 +21,7 @@ public class UserEndpointsTests : IAsyncLifetime
     private readonly Testing _testing;
     private readonly HttpClient _client;
 
-    private User[] _users;
+    private readonly User[] _users;
 
     public UserEndpointsTests(Testing testing)
     {

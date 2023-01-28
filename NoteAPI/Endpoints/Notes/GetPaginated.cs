@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using NoteAPI.Entities;
 using NoteAPI.Persistence;
 using NoteAPI.ReadModels;
+using NoteAPI.Services;
 using NoteAPI.Shared.Endpoints;
 
 namespace NoteAPI.Endpoints.Notes;
@@ -31,15 +32,18 @@ public class GetPaginatedNotesEndpoint : IEndpoint
 public class GetPaginatedNotesRequestHandler : IRequestHandler<GetPaginatedNotesRequest>
 {
     private readonly NoteDbContext _dbContext;
+    private readonly IUserContextService _userContextService;
 
-    public GetPaginatedNotesRequestHandler(NoteDbContext dbContext)
+    public GetPaginatedNotesRequestHandler(NoteDbContext dbContext, IUserContextService userContextService)
     {
         _dbContext = dbContext;
+        _userContextService = userContextService;
     }
     
     public async ValueTask<IResult> HandleAsync(GetPaginatedNotesRequest request, CancellationToken cancellationToken)
     {
-        var query = _dbContext.Notes.AsNoTracking();
+        var userId = _userContextService.UserId;
+        var query = _dbContext.Notes.Where(x => x.OwnerId == userId);
 
         if (!string.IsNullOrWhiteSpace(request.SearchPhrase))
         {
@@ -68,9 +72,10 @@ public class GetPaginatedNotesRequestHandler : IRequestHandler<GetPaginatedNotes
             .Skip((request.PageNumber-1)*request.PageSize)
             .Take(request.PageSize)
             .Select(x => NoteReadModel.From(x))
+            .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        var paginatedList = new PaginatedList<NoteReadModel>(notesReadModels, totalCount, request);
+        var paginatedList = new PaginatedList<NoteReadModel>(notesReadModels, totalCount, request.PageNumber, request.PageSize);
         
         return Results.Ok(paginatedList);
     }

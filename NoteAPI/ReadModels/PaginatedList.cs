@@ -9,11 +9,11 @@ public class PaginatedList<T>
     public int TotalPages { get; }
     public int TotalCount { get; }
     
-    public PaginatedList(List<T> items, int totalCount, PaginatedListRequest request)
+    public PaginatedList(List<T> items, int totalCount, int pageNumber, int pageSize)
     {
         Items = items;
         TotalCount = totalCount;
-        PageNumber = request.PageNumber;
-        TotalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
+        PageNumber = pageNumber;
+        TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
     }
 }
