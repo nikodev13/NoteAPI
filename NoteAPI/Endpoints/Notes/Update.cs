@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NoteAPI.Persistence;
+using NoteAPI.Services;
 using NoteAPI.Shared.Endpoints;
 
 namespace NoteAPI.Endpoints.Notes;
@@ -34,15 +35,19 @@ public class UpdateNoteEndpoint : IEndpoint
 public class UpdateNoteRequestHandler : IRequestHandler<UpdateNoteRequest>
 {
     private readonly NoteDbContext _dbContext;
+    private readonly IUserContextService _userContextService;
 
-    public UpdateNoteRequestHandler(NoteDbContext _dbContext)
+    public UpdateNoteRequestHandler(NoteDbContext dbContext, IUserContextService userContextService)
     {
-        this._dbContext = _dbContext;
+        _dbContext = dbContext;
+        _userContextService = userContextService;
     }
     
     public async ValueTask<IResult> HandleAsync(UpdateNoteRequest request, CancellationToken cancellationToken)
     {
-        if (await _dbContext.Notes.AnyAsync(x => x.Title == request.Body.Title, cancellationToken))
+        var userId = _userContextService.UserId;
+        
+        if (await _dbContext.Notes.AnyAsync(x => x.OwnerId == userId && x.Title == request.Body.Title && x.Id != request.Id, cancellationToken))
         {
             return Results.Conflict($"Note with title `{request.Body.Title}` already exists.");
         }

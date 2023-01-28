@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using NoteAPI.Persistence;
 using NoteAPI.ReadModels;
+using NoteAPI.Services;
 using NoteAPI.Shared.Endpoints;
 
 namespace NoteAPI.Endpoints.Notes;
@@ -26,16 +27,20 @@ public class GetNoteByIdEndpoint : IEndpoint
 public class GetNoteByIdRequestHandler : IRequestHandler<GetNoteByIdRequest>
 {
     private readonly NoteDbContext _dbContext;
+    private readonly IUserContextService _userContextService;
 
-    public GetNoteByIdRequestHandler(NoteDbContext dbContext)
+    public GetNoteByIdRequestHandler(NoteDbContext dbContext, IUserContextService userContextService)
     {
         _dbContext = dbContext;
+        _userContextService = userContextService;
     }
     
     public async ValueTask<IResult> HandleAsync(GetNoteByIdRequest request, CancellationToken cancellationToken)
     {
+        var userId = _userContextService.UserId;
+        
         var noteReadModel = await _dbContext.Notes
-            .Where(x => x.Id == request.Id)
+            .Where(x => x.OwnerId == userId && x.Id == request.Id)
             .Select(x => NoteReadModel.From(x))
             .FirstOrDefaultAsync(cancellationToken);
 
