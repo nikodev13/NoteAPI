@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NoteAPI.Entities;
 using NoteAPI.Persistence;
 using NoteAPI.ReadModels;
 using NoteAPI.Services;
 using NoteAPI.Shared.Endpoints;
+using NoteAPI.Shared.Validation;
 
 namespace NoteAPI.Endpoints.Notes;
 
@@ -24,9 +26,10 @@ public class CreateNoteEndpoint : IEndpoint
 {
     public void Configure(IEndpointRouteBuilder endpoint)
     {
-        endpoint.MapPost<CreateNoteRequest, CreateNoteRequestHandler>("/notes")
+        endpoint.MapPost<CreateNoteRequest, CreateNoteRequestHandler>("/api/notes")
             .Produces(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status409Conflict)
+            .UseValidation<CreateNoteRequest>()
             .RequireAuthorization();
     }
 }
@@ -63,5 +66,14 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequest>
         await _dbContext.AddAsync(note, cancellationToken);
 
         return Results.Created($"/notes/{note.Id}", NoteReadModel.From(note));
+    }
+}
+
+public class CreateNoteRequestValidator : AbstractValidator<CreateNoteRequest>
+{
+    public CreateNoteRequestValidator()
+    {
+        RuleFor(x => x.Body.Title)
+            .NotEmpty();
     }
 }

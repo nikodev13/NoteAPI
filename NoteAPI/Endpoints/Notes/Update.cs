@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using NoteAPI.Persistence;
 using NoteAPI.Services;
 using NoteAPI.Shared.Endpoints;
@@ -24,7 +26,7 @@ public class UpdateNoteEndpoint : IEndpoint
 {
     public void Configure(IEndpointRouteBuilder endpoint)
     {
-        endpoint.MapPut<UpdateNoteRequest, UpdateNoteRequestHandler>("/notes/{id:guid}")
+        endpoint.MapPut<UpdateNoteRequest, UpdateNoteRequestHandler>("/api/notes/{id:guid}")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status409Conflict)

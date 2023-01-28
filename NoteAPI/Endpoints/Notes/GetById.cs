@@ -17,7 +17,7 @@ public class GetNoteByIdEndpoint : IEndpoint
 {
     public void Configure(IEndpointRouteBuilder endpoint)
     {
-        endpoint.MapGet<GetNoteByIdRequest, GetNoteByIdRequestHandler>("/notes/{id:guid}")
+        endpoint.MapGet<GetNoteByIdRequest, GetNoteByIdRequestHandler>("/api/notes/{id:guid}")
             .Produces<NoteReadModel>()
             .Produces(StatusCodes.Status404NotFound)
             .RequireAuthorization();
