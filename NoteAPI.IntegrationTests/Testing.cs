@@ -2,7 +2,9 @@ using System.Linq.Expressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NoteAPI.Entities;
 using NoteAPI.IntegrationTests.Helpers;
+using NoteAPI.IntegrationTests.Tests.Extensions;
 using NoteAPI.Persistence;
 using NoteAPI.Shared.Endpoints;
 using Xunit;
@@ -15,46 +17,59 @@ public class TestingCollection : ICollectionFixture<Testing>
     public const string Name = "Testing";
 }
 
-public class Testing : IDisposable
+public class Testing : IDisposable, IAsyncLifetime
 {
     private readonly CustomWebApplicationFactory _factory;
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly HttpClient _client;
+    public HttpClient Client { get; }
 
     public Testing()
     {
         _factory = new CustomWebApplicationFactory();
-        _client = _factory.CreateClient();
         _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
-    }
-
-    public HttpClient GetClient()
-    {
-        return _client;
+        Client = _factory.CreateClient();
     }
 
     public async ValueTask<List<TEntity>> FindEntities<TEntity>(Expression<Func<TEntity, bool>> selector) where TEntity : class
     {
-        var service = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<NoteDbContext>();
-        return await service.Set<TEntity>().Where(selector).ToListAsync();
+        var dbContext = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<NoteDbContext>();
+        return await dbContext.Set<TEntity>().Where(selector).ToListAsync();
     }
     
     public async ValueTask AddEntities<TEntity>(params TEntity[] entities) where TEntity : class
     {
-        var service = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<NoteDbContext>();
-        await service.Set<TEntity>().AddRangeAsync(entities);
-        await service.SaveChangesAsync();
+        var dbContext = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<NoteDbContext>();
+        await dbContext.Set<TEntity>().AddRangeAsync(entities);
+        await dbContext.SaveChangesAsync();
     }
     
     public async ValueTask DeleteEntities<TEntity>(Expression<Func<TEntity, bool>> selector) where TEntity : class
     {
-        var service = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<NoteDbContext>();
-        await service.Set<TEntity>().Where(selector).ExecuteDeleteAsync();
+        var dbContext = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<NoteDbContext>();
+        await dbContext.Set<TEntity>().Where(selector).ExecuteDeleteAsync();
     }
 
     public void Dispose()
     {
-        _client.Dispose();
+        Client.Dispose();
         _factory.Dispose();
+    }
+
+    public async Task InitializeAsync()
+    {
+        await ClearDatabase();
+        await AddEntities(DummyUsers.Users.ToArray());
+    }
+
+    public async Task DisposeAsync()
+    {
+        await ClearDatabase();
+    }
+
+    private async Task ClearDatabase()
+    {
+        var usersIds = DummyUsers.Users.Select(x => x.UserId).ToList();
+        await DeleteEntities((User x) => usersIds.Contains(x.UserId));
+        // await NoteDbManager.DeleteAll();
     }
 }

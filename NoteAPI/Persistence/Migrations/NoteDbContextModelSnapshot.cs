@@ -50,7 +50,7 @@ namespace NoteAPI.Persistence.Migrations
                     b.HasIndex("Id", "Title")
                         .IsUnique();
 
-                    b.ToTable("Notes");
+                    b.ToTable("Notes", (string)null);
                 });
 
             modelBuilder.Entity("NoteAPI.Entities.User", b =>
@@ -74,7 +74,7 @@ namespace NoteAPI.Persistence.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("NoteAPI.Entities.Note", b =>
