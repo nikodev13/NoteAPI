@@ -6,6 +6,5 @@ namespace NoteAPI.IntegrationTests.Services;
 public class UserContextService : IUserContextService
 {
     public UserId? UserId => CurrentUserId;
-
-    public static UserId CurrentUserId { get; set; }
+    public static UserId CurrentUserId { get; set; } = default!;
 }
