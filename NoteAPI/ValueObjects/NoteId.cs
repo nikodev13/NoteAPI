@@ -1,6 +1,6 @@
 ﻿namespace NoteAPI.ValueObjects;
 
-public class NoteId
+public record NoteId
 {
     public Guid Value { get; }
 

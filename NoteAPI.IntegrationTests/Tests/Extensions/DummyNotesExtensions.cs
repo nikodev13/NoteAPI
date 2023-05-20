@@ -9,13 +9,7 @@ public static class NotesDbExtensions
 {
     public static async ValueTask<Note> AddUniqueNoteToDb(this Testing testing, UserId ownerId)
     {
-        var unique = new Note
-        {
-            Id = Guid.NewGuid(),
-            Title = $"Unique note with random number: {Random.Shared.NextInt64()}",
-            OwnerId = ownerId,
-            CreatedAt = DateTime.Now,
-        };
+        var unique = new Note($"Unique note with random number: {Random.Shared.NextInt64()}", null, ownerId);
         await testing.AddEntities(unique);
         return unique;
     }

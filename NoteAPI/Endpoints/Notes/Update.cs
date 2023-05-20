@@ -5,21 +5,13 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using NoteAPI.Persistence;
 using NoteAPI.Services;
 using NoteAPI.Shared.Endpoints;
+using NoteAPI.ValueObjects;
 
 namespace NoteAPI.Endpoints.Notes;
 
-public class UpdateNoteRequest : IRequest
+public record UpdateNoteRequest(Guid Id, UpdateNoteRequest.UpdateNoteRequestBody Body) : IRequest
 {
-    [FromRoute]
-    public required Guid Id { get; init; }
-    [FromBody]
-    public required UpdateNoteRequestBody Body { get; init; }
-    
-    public class UpdateNoteRequestBody
-    {
-        public required string Title { get; init; }
-        public string? Content { get; init; }
-    }
+    public record UpdateNoteRequestBody(string Title, string? Content = null);
 }
 
 public class UpdateNoteEndpoint : IEndpoint
@@ -48,22 +40,21 @@ public class UpdateNoteRequestHandler : IRequestHandler<UpdateNoteRequest>
     public async ValueTask<IResult> HandleAsync(UpdateNoteRequest request, CancellationToken cancellationToken)
     {
         var userId = _userContextService.UserId;
+        var (noteId, (title, content)) = request;
         
-        if (await _dbContext.Notes.AnyAsync(x => x.OwnerId == userId && x.Title == request.Body.Title && x.Id != request.Id, cancellationToken))
-        {
-            return Results.Conflict($"Note with title `{request.Body.Title}` already exists.");
-        }
+        var noteAlreadyExists = await _dbContext.Notes
+            .Where(x => x.OwnerId.Equals(userId) && x.Title == title)
+            .AnyAsync(cancellationToken);
+        if (noteAlreadyExists)
+            return Results.Conflict($"Note with title `{title}` already exists.");
 
-        var note = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-
+        var note = await _dbContext.Notes
+            .FirstOrDefaultAsync(x => x.Id.Equals(noteId), cancellationToken);
         if (note is null)
-        {
-            return Results.NotFound($"Note with id {request.Id} not found.");
-        }
+            return Results.NotFound($"Note with id {noteId} not found.");
 
-        note.Title = request.Body.Title;
-        note.Content = request.Body.Content;
-        note.LastUpdatedAt = DateTime.Now;
+        note.UpdateTitle(title);
+        note.UpdateContent(content);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 

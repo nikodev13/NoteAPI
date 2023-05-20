@@ -12,11 +12,12 @@ public class NoteEntityTypeConfiguration : IEntityTypeConfiguration<Note>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
             .HasConversion(x => x.Value, x => new NoteId(x));
-
+        builder.Property(x => x.Title)
+            .HasConversion(x => x.Value, x => new NoteTitle(x));
         builder.Property(x => x.OwnerId)
             .HasConversion(x => x.Value, x => new UserId(x));
         builder.HasOne<User>().WithMany().HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasIndex(x => new { x.Id, x.Title }).IsUnique();
+        builder.HasIndex(x => new { x.Id, Title = x.Title }).IsUnique();
     }
 }

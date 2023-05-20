@@ -23,11 +23,7 @@ public class UserEndpointsTests
     public async Task RegisterUser_WithEmailThatAlreadyExists_Returns409Conflict()
     {
         // arrange
-        var request = new RegisterUserRequest.RegisterUserRequestBody
-        {
-            Email = DummyUsers.Users[0].Email,
-            Password = "sample_password"
-        };
+        var request = new RegisterUserRequest.RegisterUserRequestBody(DummyUsers.Users[0].Email, "sample_password");
         var httpContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
         
         //act
@@ -41,11 +37,7 @@ public class UserEndpointsTests
     public async Task LoginUser_InvalidEmailOrPassword_Returns400BadRequest()
     {
         // arrange
-        var request = new LoginUserRequest.LoginUserRequestBody
-        {
-            Email = DummyUsers.Users[0].Email,
-            Password = "sample_invalid_password"
-        };
+        var request = new LoginUserRequest.LoginUserRequestBody(DummyUsers.Users[0].Email, "sample_invalid_password");
         var httpContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
         
         //act
@@ -59,11 +51,7 @@ public class UserEndpointsTests
     public async Task LoginUser_Successfully_Returns200OkAndAccessTokenReadModel()
     {
         // arrange
-        var request = new LoginUserRequest.LoginUserRequestBody
-        {
-            Email = DummyUsers.Users[0].Email,
-            Password = "sample_password"
-        };
+        var request = new LoginUserRequest.LoginUserRequestBody(DummyUsers.Users[0].Email, "sample_password");
         var httpContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
         
         //act
@@ -79,10 +67,7 @@ public class UserEndpointsTests
     public async Task ChangeEmail_WithEmailThatAlreadyExists_Returns409Conflict()
     {
         // arrange
-        var request = new ChangeUserEmailRequest.ChangeUserEmailRequestBody()
-        {
-            Email = DummyUsers.Users[0].Email,
-        };
+        var request = new ChangeUserEmailRequest.ChangeUserEmailRequestBody(DummyUsers.Users[0].Email);
         
         var httpContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
         
@@ -97,10 +82,8 @@ public class UserEndpointsTests
     public async Task ChangeEmail_Successfully_ReturnsNoContent()
     {
         // arrange
-        var request = new ChangeUserEmailRequest.ChangeUserEmailRequestBody()
-        {
-            Email = "newtest@test.com",
-        };
+        var request = new ChangeUserEmailRequest.ChangeUserEmailRequestBody("newtest@test.com");
+
         UserContextService.CurrentUserId = DummyUsers.Users[0].UserId;
         var httpContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
         

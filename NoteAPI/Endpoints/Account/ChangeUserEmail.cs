@@ -6,14 +6,9 @@ using NoteAPI.Shared.Endpoints;
 
 namespace NoteAPI.Endpoints.Account;
 
-public class ChangeUserEmailRequest : IRequest
+public record ChangeUserEmailRequest(ChangeUserEmailRequest.ChangeUserEmailRequestBody Body) : IRequest
 {
-    public required ChangeUserEmailRequestBody Body { get; init; }
-    
-    public class ChangeUserEmailRequestBody
-    {
-        public required string Email { get; init; }
-    }
+    public record ChangeUserEmailRequestBody(string Email);
 }
 
 public class ChangeUserEmailEndpoint : IEndpoint
@@ -40,15 +35,19 @@ public class ChangeUserEmailRequestHandler : IRequestHandler<ChangeUserEmailRequ
     
     public async ValueTask<IResult> HandleAsync(ChangeUserEmailRequest request, CancellationToken cancellationToken)
     {
-        if (await _noteDbContext.Users.AnyAsync(x => x.Email == request.Body.Email, cancellationToken))
-        {
-            return Results.Conflict($"User with email `{request.Body.Email}` already exists.");
-        }
+        var userId = _userContextService.UserId!;
+        var email = request.Body.Email;
+
+        var userEmailAlreadyExists = await _noteDbContext.Users
+            .AnyAsync(x => x.Email == email, cancellationToken);
+        
+        if (userEmailAlreadyExists)
+            return Results.Conflict($"User with email `{email}` already exists.");
 
         var user = await _noteDbContext.Users
-            .SingleAsync(x => x.UserId == _userContextService.UserId, cancellationToken);
+            .SingleAsync(x => x.UserId.Equals(userId), cancellationToken);
 
-        user.Email = request.Body.Email.ToLower();
+        user.UpdateEmail(email);
         await _noteDbContext.SaveChangesAsync(cancellationToken);
 
         return Results.NoContent();

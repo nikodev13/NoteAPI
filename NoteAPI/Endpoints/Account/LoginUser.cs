@@ -8,16 +8,9 @@ using NoteAPI.Shared.Endpoints;
 
 namespace NoteAPI.Endpoints.Account;
 
-public class LoginUserRequest : IRequest
+public record LoginUserRequest(LoginUserRequest.LoginUserRequestBody Body) : IRequest
 {
-    [FromBody]
-    public required LoginUserRequestBody Body { get; set; }
-    
-    public class LoginUserRequestBody
-    {
-        public required string Email { get; init; }
-        public required string Password { get; init; }
-    }
+    public record LoginUserRequestBody(string Email, string Password);
 }
 
 public class LoginUserEndpoint : IEndpoint
@@ -50,21 +43,19 @@ public class LoginUserRequestHandler : IRequestHandler<LoginUserRequest>
     
     public async ValueTask<IResult> HandleAsync(LoginUserRequest request, CancellationToken cancellationToken)
     {
-        if (_userContextService.UserId is not null)
-        {
-            return Results.BadRequest("You're already logged in.");
-        }
-        
-        var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Email == request.Body.Email, cancellationToken);
-        if (user is null || !_passwordHasher.VerifyPassword(request.Body.Password, user.PasswordHash))
-        {
-            return Results.BadRequest("Invalid email or password.");
-        }
+        var userId = _userContextService.UserId;
+        if (userId is not null)
+            return Results.BadRequest("You are already logged in.");
 
-        var accessTokenReadModel = new AccessTokenReadModel
-        {
-            AccessToken = _jwtTokenProvider.GenerateJwtToken(user)
-        };
+        var (email, password) = request.Body;
+        
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
+        if (user is null || !_passwordHasher.VerifyPassword(password, user.PasswordHash))
+            return Results.BadRequest("Invalid email or password.");
+
+        var accessToken = _jwtTokenProvider.GenerateJwtToken(user);
+        var accessTokenReadModel = new AccessTokenReadModel(accessToken);
 
         return Results.Ok(accessTokenReadModel);
     }

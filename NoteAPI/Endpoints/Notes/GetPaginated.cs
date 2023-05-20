@@ -9,15 +9,12 @@ using NoteAPI.Shared.Endpoints;
 
 namespace NoteAPI.Endpoints.Notes;
 
-public class GetPaginatedNotesRequest : PaginatedListRequest
-{
-    [FromQuery]
-    public string? SearchPhrase { get; init; }
-    [FromQuery]
-    public string? OrderBy { get; init; }
-    [FromQuery]
-    public bool? OrderDescending { get; init; } = false;
-}
+public record GetPaginatedNotesRequest(
+    uint PageSize,
+    uint PageNumber,
+    string? SearchPhrase = null,
+    string? OrderBy = null,
+    bool OrderDescending = false) : IRequest;
 
 public class GetPaginatedNotesEndpoint : IEndpoint
 {
@@ -44,33 +41,32 @@ public class GetPaginatedNotesRequestHandler : IRequestHandler<GetPaginatedNotes
     {
         var userId = _userContextService.UserId;
         var query = _dbContext.Notes.Where(x => x.OwnerId == userId);
+        var (pageSize, pageNumber, searchPhrase, orderBy, orderDescending) = request;
 
-        if (!string.IsNullOrWhiteSpace(request.SearchPhrase))
+        if (!string.IsNullOrWhiteSpace(searchPhrase))
         {
-            query = query.Where(x => x.Title.Contains(request.SearchPhrase));
+            query = query.Where(x => ((string)x.Title).Contains(searchPhrase));
         }
 
-        if (!string.IsNullOrWhiteSpace(request.OrderBy))
+        if (!string.IsNullOrWhiteSpace(orderBy))
         {
-            var orderSelectors = new Dictionary<string, Expression<Func<Note, object>>>()
+            Expression<Func<Note, object?>> selector = orderBy switch
             {
-                { "Title", x => x.Title },
-                { "CreatedAt", x => x.CreatedAt },
-                { "LastModifiedAt", x => x.LastUpdatedAt! },
+                nameof(Note.CreatedAt) => x => x.CreatedAt,
+                nameof(Note.LastUpdatedAt) => x => x.LastUpdatedAt,
+                _ => x => x.Title
             };
-
-            var selector = orderSelectors[request.OrderBy];
             
-            query = request.OrderDescending == true
+            query = orderDescending
                 ? query.OrderByDescending(selector)
                 : query.OrderBy(selector);
         }
 
-        var totalCount = await query.CountAsync(cancellationToken);
+        var totalCount = (uint)await query.CountAsync(cancellationToken);
         
         var notesReadModels = await query
-            .Skip((request.PageNumber-1)*request.PageSize)
-            .Take(request.PageSize)
+            .Skip((int)((pageNumber-1) * pageSize))
+            .Take((int)pageSize)
             .Select(x => NoteReadModel.From(x))
             .AsNoTracking()
             .ToListAsync(cancellationToken);
