@@ -3,14 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using NoteAPI.Persistence;
 using NoteAPI.Services;
 using NoteAPI.Shared.Endpoints;
+using NoteAPI.ValueObjects;
 
 namespace NoteAPI.Endpoints.Notes;
 
-public class DeleteNoteRequest : IRequest
-{
-    [FromRoute]
-    public required Guid Id { get; init; }
-}
+public record DeleteNoteRequest(Guid Id) : IRequest;
 
 public class DeleteNoteEndpoint : IEndpoint
 {
@@ -37,13 +34,14 @@ public class DeleteNoteRequestHandler : IRequestHandler<DeleteNoteRequest>
     public async ValueTask<IResult> HandleAsync(DeleteNoteRequest request, CancellationToken cancellationToken)
     {
         var userId = _userContextService.UserId;
+        var noteId = request.Id;
         
         var affectedRows = await _dbContext.Notes
-            .Where(x => x.OwnerId == userId && x.Id == request.Id)
+            .Where(x => x.OwnerId.Equals(userId) && x.Id.Equals(noteId))
             .ExecuteDeleteAsync(cancellationToken);
 
         return affectedRows == 0
-            ? Results.NotFound($"Note with id {request.Id} not found.")
+            ? Results.NotFound($"Note with id {noteId} not found.")
             : Results.NoContent();
     }
 }

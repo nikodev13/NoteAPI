@@ -11,15 +11,9 @@ public static class DummyUsers
     {
         var passwordHasher = new BCryptPasswordHasher();
         
-        Users = new List<User>()
+        Users = new List<User>
         {
-            new()
-            {
-                UserId = Guid.Parse("48F18513-CF2A-4471-B74B-A0F41E35931B"),
-                Email = "notesOwner@test.com",
-                PasswordHash = passwordHasher.HashPassword("sample_password"),
-                RegisteredAt = DateTime.Now,
-            }
+            new("notesOwner@test.com", passwordHasher.HashPassword("sample_password"))
         };
     }
 }

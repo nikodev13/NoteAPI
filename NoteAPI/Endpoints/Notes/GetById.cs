@@ -7,11 +7,7 @@ using NoteAPI.Shared.Endpoints;
 
 namespace NoteAPI.Endpoints.Notes;
 
-public class GetNoteByIdRequest : IRequest
-{
-    [FromRoute]
-    public required Guid Id { get; init; }
-}
+public record GetNoteByIdRequest(Guid Id) : IRequest;
 
 public class GetNoteByIdEndpoint : IEndpoint
 {
@@ -38,14 +34,15 @@ public class GetNoteByIdRequestHandler : IRequestHandler<GetNoteByIdRequest>
     public async ValueTask<IResult> HandleAsync(GetNoteByIdRequest request, CancellationToken cancellationToken)
     {
         var userId = _userContextService.UserId;
+        var noteId = request.Id;
         
         var noteReadModel = await _dbContext.Notes
-            .Where(x => x.OwnerId == userId && x.Id == request.Id)
+            .Where(x => x.OwnerId.Equals(userId) && x.Id.Equals(noteId))
             .Select(x => NoteReadModel.From(x))
             .FirstOrDefaultAsync(cancellationToken);
 
         return noteReadModel is null
-            ? Results.NotFound($"Note with id {request.Id} not found.")
+            ? Results.NotFound($"Note with id {noteId} not found.")
             : Results.Ok(noteReadModel);
     }
 }

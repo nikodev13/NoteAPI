@@ -1,6 +1,3 @@
 ﻿namespace NoteAPI.ReadModels;
 
-public class AccessTokenReadModel
-{
-    public required string AccessToken { get; init; }
-}
+public record AccessTokenReadModel(string AccessToken);

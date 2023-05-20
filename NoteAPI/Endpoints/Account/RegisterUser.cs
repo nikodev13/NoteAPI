@@ -1,23 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using NoteAPI.Authentication;
 using NoteAPI.Entities;
 using NoteAPI.Persistence;
 using NoteAPI.Shared.Endpoints;
-using NoteAPI.Shared.Validation;
 
 namespace NoteAPI.Endpoints.Account;
 
-public class RegisterUserRequest : IRequest
+public record RegisterUserRequest(RegisterUserRequest.RegisterUserRequestBody Body) : IRequest
 {
-    [FromBody] 
-    public required RegisterUserRequestBody Body { get; init; }
-    
-    public class RegisterUserRequestBody
-    {
-        public required string Email { get; init; }
-        public required string Password { get; init; }
-    } 
+    public record RegisterUserRequestBody(string Email, string Password);
 }
 
 public class RegisterUserEndpoint : IEndpoint
@@ -43,18 +34,14 @@ public class RegisterUserRequestHandler : IRequestHandler<RegisterUserRequest>
     
     public async ValueTask<IResult> HandleAsync(RegisterUserRequest request, CancellationToken cancellationToken)
     {
-        if (await _dbContext.Users.AnyAsync(x => x.Email == request.Body.Email, cancellationToken))
-        {
-            return Results.Conflict($"User with email `{request.Body.Email}` already exists.");
-        }
+        var (email, password) = request.Body;
+        
+        var userEmailAlreadyExists = await _dbContext.Users
+            .AnyAsync(x => x.Email == email, cancellationToken);
+        if (userEmailAlreadyExists)
+            return Results.Conflict($"User with email `{email}` already exists.");
 
-        var user = new User()
-        {
-            UserId = Guid.NewGuid(),
-            Email = request.Body.Email.ToLower(),
-            PasswordHash = _passwordHasher.HashPassword(request.Body.Password),
-            RegisteredAt = DateTime.Now
-        };
+        var user = new User(email, _passwordHasher.HashPassword(password));
 
         await _dbContext.AddAsync(user, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);

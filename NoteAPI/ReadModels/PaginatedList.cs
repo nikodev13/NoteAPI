@@ -5,15 +5,15 @@ namespace NoteAPI.ReadModels;
 public class PaginatedList<T>
 {
     public List<T> Items { get; }
-    public int PageNumber { get; }
-    public int TotalPages { get; }
-    public int TotalCount { get; }
+    public uint PageNumber { get; }
+    public uint TotalPages { get; }
+    public uint TotalCount { get; }
     
-    public PaginatedList(List<T> items, int totalCount, int pageNumber, int pageSize)
+    public PaginatedList(List<T> items, uint totalCount, uint pageNumber, uint pageSize)
     {
         Items = items;
         TotalCount = totalCount;
         PageNumber = pageNumber;
-        TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+        TotalPages = (uint)Math.Ceiling((double)totalCount / pageSize);
     }
 }
