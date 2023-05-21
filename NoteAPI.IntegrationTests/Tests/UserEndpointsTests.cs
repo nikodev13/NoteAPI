@@ -51,6 +51,7 @@ public class UserEndpointsTests
     public async Task LoginUser_Successfully_Returns200OkAndAccessTokenReadModel()
     {
         // arrange
+        UserContextService.CurrentUserId = null;
         var request = new LoginUserRequest.LoginUserRequestBody(DummyUsers.Users[0].Email, "sample_password");
         var httpContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
         
