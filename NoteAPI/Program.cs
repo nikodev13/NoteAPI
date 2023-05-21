@@ -5,8 +5,12 @@ using NoteAPI.Middlewares;
 using NoteAPI.Persistence;
 using NoteAPI.Services;
 using NoteAPI.Shared.Endpoints;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
+    loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
 
 builder.Services
     .ConfigurePersistence(builder.Configuration)
