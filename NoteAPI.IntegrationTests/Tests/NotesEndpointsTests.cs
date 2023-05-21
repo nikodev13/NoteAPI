@@ -51,11 +51,11 @@ public class NotesEndpointsTests
         // act
         var response = await _client.GetAsync("/api/notes?pageNumber=1&pageSize=5&searchPhrase=note");
         var stringContent = await response.Content.ReadAsStringAsync();
-        var content = JsonConvert.DeserializeObject<PaginatedList<NoteReadModel>>(stringContent);
+        var content = JsonConvert.DeserializeObject<PaginatedList<NoteReadModel>>(stringContent)!;
         
         // assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.NotEmpty(content?.Items);
+        Assert.NotEmpty(content.Items);
     }
     
     [Theory]
@@ -132,7 +132,7 @@ public class NotesEndpointsTests
         UserContextService.CurrentUserId = userId;
         var note1 = await _testing.AddUniqueNoteToDb(userId);
         var note2 = await _testing.AddUniqueNoteToDb(userId);
-        var request = new UpdateNoteRequest.UpdateNoteRequestBody(note1.Title, null);
+        var request = new UpdateNoteRequest.UpdateNoteRequestBody(note1.Title);
         var httpContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
         
         // act
@@ -149,7 +149,7 @@ public class NotesEndpointsTests
         var userId = DummyUsers.Users[0].UserId;
         UserContextService.CurrentUserId = userId;
         var note = await _testing.AddUniqueNoteToDb(userId);
-        var request = new UpdateNoteRequest.UpdateNoteRequestBody("New extra unique note title", null);
+        var request = new UpdateNoteRequest.UpdateNoteRequestBody("New extra unique note title");
         var httpContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
         
         // act
