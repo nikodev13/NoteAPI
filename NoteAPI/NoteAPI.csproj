@@ -22,5 +22,13 @@
       <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
         <InternalsVisibleTo Include="NoteAPI.IntegrationTests" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="logs\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="logs\log20230521.txt" />
+    </ItemGroup>
     
 </Project>
