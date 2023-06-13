@@ -1,4 +1,4 @@
-﻿# NoteAPI
+# NoteAPI ![example workflow](https://github.com/nikodev13/NoteAPI/actions/workflows/ci.yml/badge.svg)
 
 Simple ASP.NET Core web API for storing notes.
 
