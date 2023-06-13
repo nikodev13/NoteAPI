@@ -19,8 +19,13 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             services.Remove<IUserContextService>();
             services.AddScoped<IUserContextService, UserContextService>();
             services.AddSingleton<IPolicyEvaluator, FakePolicyEvaluator>();
-            services.Remove<DbContextOptions<NoteDbContextSQLLite>>();
-            services.AddDbContext<NoteDbContextSQLLite>(x => x.UseSqlite());
+            
+            // sqlite db
+            services.Remove<DbContextOptions<NoteDbContext>>();
+            services.Remove<NoteDbContext>();
+            services.AddSingleton<DbContextOptions<NoteDbContext>>(
+                x => new DbContextOptionsBuilder<NoteDbContext>().UseSqlite("Data source=test.db3").Options);
+            services.AddDbContext<NoteDbContext, SqliteNoteDbContext>(ServiceLifetime.Singleton);
         });
         
         builder.UseEnvironment("Development");

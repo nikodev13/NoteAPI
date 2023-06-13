@@ -29,20 +29,20 @@ public class Testing : IDisposable, IAsyncLifetime
 
     public async ValueTask<List<TEntity>> FindEntities<TEntity>(Expression<Func<TEntity, bool>> selector) where TEntity : class
     {
-        var dbContext = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<NoteDbContextSQLLite>();
+        var dbContext = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<SqliteNoteDbContext>();
         return await dbContext.Set<TEntity>().Where(selector).ToListAsync();
     }
     
     public async ValueTask AddEntities<TEntity>(params TEntity[] entities) where TEntity : class
     {
-        var dbContext = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<NoteDbContextSQLLite>();
+        var dbContext = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<SqliteNoteDbContext>();
         await dbContext.Set<TEntity>().AddRangeAsync(entities);
         await dbContext.SaveChangesAsync();
     }
     
     public async ValueTask DeleteEntities<TEntity>(Expression<Func<TEntity, bool>> selector) where TEntity : class
     {
-        var dbContext = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<NoteDbContextSQLLite>();
+        var dbContext = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<SqliteNoteDbContext>();
         await dbContext.Set<TEntity>().Where(selector).ExecuteDeleteAsync();
     }
 
